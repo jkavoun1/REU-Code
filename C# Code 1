@@ -1,0 +1,218 @@
+using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
+
+// LAT is x and LONG is y
+struct Point
+{
+    public double x, y;
+}
+
+public class TestLocationService : MonoBehaviour
+{
+    List<Dictionary<string,object>> data;
+
+    Point cahholl;
+    Point breaca;
+    Point breaholl;
+    Point fairca;
+    Point fairwest;
+    Point cahca;
+    Point breawest;
+
+    int total_sum = 0;
+    //int half_sum1 = 0;
+    //int half_sum2 =0;
+    int quarter_sum1 = 0;
+    int quarter_sum2 = 0;
+    int quarter_sum3 = 0;
+    int quarter_sum4 = 0;
+
+    private void doSomethingWithLocation(float latTest, float lonTest)
+    {
+        /*Debug.Log("Doing Something with latitutde:"+ latTest);
+        Debug.Log("Doing Something with latitutde:"+ longTest);*/
+
+        //for now, just confirm that the sum is calculated and is still the same
+    }
+
+    private void declarepoints()
+    {
+      // top right box
+      // hollywood and cahuenga
+      cahholl.x = 34.101609;
+      cahholl.y = -118.329631;
+      // la brea and CA-2
+      breaca.x = 34.09061;
+      breaca.y = -118.34409;
+
+      // top left box
+      // la brea and hollywood
+      breaholl.x = 34.101582;
+      breaholl.y = -118.345223;
+      //fairfax and CA-2
+      fairca.x = 34.090816;
+      fairca.y = -118.361478;
+
+      // bottom left box
+      // breaca is the top right corner of this box
+      fairwest.x = 34.071499;
+      fairwest.y = -118.361421;
+
+      // bottom right box
+      // cahuenga and CA-2
+      cahca.x = 34.090733;
+      cahca.y = -118.328876;
+      // la brea and west 3rd
+      breawest.x = 34.068897;
+      breawest.y = -118.344024;
+    }
+
+    private void crimeSum()
+    {
+        //confirm that the sum of total rectangle is working
+        for(var i=0; i < data.Count; i++)
+        {
+          if(check(fairwest,cahholl,data[i]["LAT"].ToString(),data[i]["LON"].ToString()))
+          {
+            total_sum += 1;
+          }
+        }
+
+        print ("total_sum =" + total_sum);
+
+            //Debug.Log("latitude " + data[i]["LAT"] + " " +
+			       //"longitude " + data[i]["LON"]);
+		}
+
+    private void crimeSumquarter()
+    {
+      // top right box
+      for(var i=0; i < data.Count; i++)
+      {
+        if(check(breaca,cahholl,data[i]["LAT"].ToString(),data[i]["LON"].ToString()))
+        {
+          quarter_sum1 += 1;
+        }
+      }
+
+      // top left box
+      for(var i=0; i < data.Count; i++)
+      {
+        if(check(fairca,breaholl,data[i]["LAT"].ToString(),data[i]["LON"].ToString()))
+        {
+          quarter_sum2 += 1;
+        }
+      }
+
+      // bottom left box
+      for(var i=0; i < data.Count; i++)
+      {
+        if(check(fairwest,breaca,data[i]["LAT"].ToString(),data[i]["LON"].ToString()))
+        {
+          quarter_sum3 += 1;
+        }
+      }
+
+      // bottom right box
+      for(var i=0; i < data.Count; i++)
+      {
+        if(check(breawest,cahca,data[i]["LAT"].ToString(),data[i]["LON"].ToString()))
+        {
+          quarter_sum4 += 1;
+        }
+      }
+      print("total_sum =" + total_sum);
+      print("quarter_sum1 =" + quarter_sum1);
+      print("quarter_sum2 =" + quarter_sum2);
+      print("quarter_sum3 =" + quarter_sum3);
+      print("quarter_sum4 =" + quarter_sum4);
+
+    }
+
+    private bool check(Point bl, Point tr, string lat, string lon)
+    {
+        double t_lat = double.Parse(lat);
+        double t_lon = double.Parse(lon);
+
+        if (t_lat >= bl.x && t_lat <= tr.x && t_lon >= bl.y && t_lon <= tr.y)
+        {
+          print("True");
+          return true;
+        }
+        else
+        {
+          print("False");
+          return false;
+        }
+    }
+
+    void Awake()
+    {
+        declarepoints();
+
+        Debug.Log("AWAKE");
+
+		    data = CSVReader.Read ("rape_data_hollywood");
+
+		    for(var i=0; i < data.Count; i++)
+        {
+          print ("latitude " + data[i]["LAT"] + " " +
+			    "longitude " + data[i]["LON"]);
+        }
+
+        crimeSum();
+        crimeSumquarter();
+        //crimeSumhalf();
+      }
+
+
+// don't need to touch this
+    IEnumerator Start()
+    {
+        Debug.Log("Hello from Test Location Service");
+ 	      print("Hello from Test Location Service");
+
+        // First, check if user has location service enabled
+        if (!Input.location.isEnabledByUser)
+            yield break;
+
+        // Start service before querying location
+        Input.location.Start();
+
+        // Wait until service initializes
+        int maxWait = 20;
+        while (Input.location.status == LocationServiceStatus.Initializing && maxWait > 0)
+        {
+            yield return new WaitForSeconds(1);
+            maxWait--;
+        }
+
+        // Service didn't initialize in 20 seconds
+        if (maxWait < 1)
+        {
+            print("Timed out");
+            yield break;
+        }
+
+        // Connection has failed
+        if (Input.location.status == LocationServiceStatus.Failed)
+        {
+            Debug.Log("Unable to determine device location");
+            print("Unable to determine device location");
+            yield break;
+        }
+        else
+        {
+            // Access granted and location value could be retrieved
+            Debug.Log("LOCATION FOUND");
+            print("Location: " + Input.location.lastData.latitude + " " + Input.location.lastData.longitude + " " + Input.location.lastData.altitude + " " + Input.location.lastData.horizontalAccuracy + " " + Input.location.lastData.timestamp);
+            doSomethingWithLocation(Input.location.lastData.latitude, Input.location.lastData.longitude);
+            //doSomethingWithLocation(Input.location.lastData.latitude);
+
+        }
+
+        // Stop service if there is no need to query location updates continuously
+        Input.location.Stop();
+    }
+  }
