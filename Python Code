@@ -1,0 +1,73 @@
+import pandas as pd
+import numpy as np
+
+crime = pd.read_csv("rape_data.csv")
+
+# corners - (lat,long)
+#top right box
+cahholl = (34.101609,-118.329631) # hollywood and cahuenga
+breaca = (34.09061,-118.34409) # la brea and CA-2
+
+# top left box
+breaholl = (34.101582,-118.345223) #la brea and hollywood
+fairca = (34.090816,-118.361478) # fiarfax and CA-2
+
+# bottom left box
+# breaca is the top right corner
+fairwest = (34.071499,-118.361421) # fairfax and west 3rd
+
+#bottom right box
+cahca = (34.090733,-118.328876) #cahuenga and CA-2
+breawest = (34.068897,-118.344024) # la brea and west 3rd
+
+total_sum = 0
+
+total_sum_tr = 0
+total_sum_tl = 0
+total_sum_bl = 0
+total_sum_br = 0
+
+# checking to see if point are within the square
+def check(bl,tr,lat,long):
+    if (lat >= bl[0] and lat <= tr[0] and long >= bl[1] and long <= tr[1]):
+        return True
+    else:
+        return False
+
+print(check(fairwest,cahholl,34.09061,-118.34409))
+
+# entire area so all sections should add to 34
+for index, row in crime.iterrows():
+    # print(index)
+    if(check(fairwest,cahholl,row["LAT"],row["LON"])):
+        total_sum += 1
+
+print(total_sum)
+
+# top right box sum
+for index, row in crime.iterrows():
+    if(check(breaca,cahholl,row["LAT"],row["LON"])):
+        total_sum_tr += 1
+
+print(total_sum_tr)
+
+# top left box sum
+for index, row in crime.iterrows():
+    if(check(fairca,breaholl,row["LAT"],row["LON"])):
+        total_sum_tl += 1
+
+print(total_sum_tl)
+
+# bottom left box sum
+for index, row in crime.iterrows():
+    if(check(fairwest,breaca,row["LAT"],row["LON"])):
+        total_sum_bl += 1
+
+print(total_sum_bl)
+
+# bottom right box sum
+for index, row in crime.iterrows():
+    if(check(breawest,cahca,row["LAT"],row["LON"])):
+        total_sum_br += 1
+
+print(total_sum_br)
